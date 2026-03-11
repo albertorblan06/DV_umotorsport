@@ -1,0 +1,23 @@
+# PlatformIO build artifacts
+.pio
+.vscode
+.venv
+
+# ESP-IDF managed components (downloaded dependencies)
+managed_components/
+
+# ESP-IDF generated configuration
+sdkconfig.esp32dev
+build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~

@@ -1,0 +1,12 @@
+site/
+*.pyc
+__pycache__/
+.venv/
+.vscode/
+
+# Auto-generated LLM files (regenerated on each build)
+llms.txt
+llms-full.txt
+
+# Generated BOM reports
+reports/bom/

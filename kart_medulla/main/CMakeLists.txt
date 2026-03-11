@@ -1,0 +1,10 @@
+set(srcs
+        "main.c")
+        # "sketch.cpp")
+
+set(requires
+    "km_act" "km_coms" "km_gamc" "km_gpio" "km_objects" "km_pid" "km_proto" "km_rtos" "km_sdir" "km_sta")
+
+idf_component_register(SRCS "${srcs}"
+                    INCLUDE_DIRS "."
+                    REQUIRES "${requires}")

@@ -1,0 +1,8 @@
+build/
+install/
+log/
+src/zed-ros2-wrapper/
+__pycache__/
+training/perception/data/
+training/perception/runs/
+.env

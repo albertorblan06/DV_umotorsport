@@ -1,0 +1,60 @@
+site_name: Driverless Kart Documentation
+theme:
+  name: material
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+nav:
+  - Home: index.md
+  - BOM: bom/index.md
+  - Tools: tools/index.md
+  - Assembly:
+      - Overview: assembly/index.md
+      - Powertrain:
+          - Overview: assembly/powertrain/index.md
+          - Motor: assembly/powertrain/motor.md
+          - Transmission: assembly/powertrain/transmission.md
+          - Throttle Pedal: assembly/powertrain/throttle-pedal.md
+          - Fasteners: assembly/powertrain/fasteners.md
+      - Steering:
+          - Overview: assembly/steering/index.md
+          - H-bridge: assembly/steering/h-bridge.md
+          - Angle Sensor: assembly/steering/sensor/index.md
+          - Fasteners: assembly/steering/fasteners.md
+      - Electronics:
+          - Microcontroller: assembly/electronics/microcontroller.md
+          - Computer: assembly/electronics/computer.md
+          - DAC: assembly/electronics/dac.md
+          - Wiring: assembly/electronics/wiring.md
+          - Power:
+              - Battery: assembly/electronics/power/battery.md
+      - Sensors:
+          - Camera: assembly/sensors/camera.md
+      - Emergency Braking: assembly/emergency-braking/index.md
+  - Hydraulics: hydraulics/index.md
+  - Software: software/index.md
+  - Agent Iterations:
+      - Overview: iterations/index.md
+      - Iteration 1: iterations/1.md
+      - Iteration 2: iterations/2.md
+      - Iteration 3: iterations/3.md
+  - FAQ: faq.md
+  - Contact: contact.md
+repo_url: https://github.com/um-driverless/kart_docs
+edit_uri: edit/main/docs/
+plugins:
+  - search
+  - exporter:
+      enabled: !ENV [EXPORT_PDF, false] # ← only runs when EXPORT_PDF=true
+      formats:
+        pdf:
+          pages:
+            enabled: false # keep only the book-size PDF
+          aggregator:
+            enabled: true
+            output: kart-documentation.pdf
+
+hooks:
+  - generate_llm_hook.py
+  - generate_bom_hook.py

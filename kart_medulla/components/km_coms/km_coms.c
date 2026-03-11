@@ -1,0 +1,368 @@
+/******************************************************************************
+ * @file    km_coms.c
+ * @brief   Implementation of the KM_COMS communication library for ESP32.
+ *
+ * This file implements the KM_COMS library, providing UART-based communication
+ * between an ESP32 and an NVIDIA Orin (or other host system). The library handles:
+ *  - Initialization and configuration of the UART peripheral
+ *  - Sending and receiving framed messages
+ *  - CRC8 validation for data integrity
+ *  - Processing incoming payloads and updating shared application objects
+ *  - FreeRTOS task integration for periodic message handling
+ *
+ * --------------------------------------------------------------------------
+ * PROTOCOL DETAILS
+ * --------------------------------------------------------------------------
+ * Each message follows a custom framing format:
+ *
+ *   | SOF | LEN | TYPE | PAYLOAD | CRC |
+ *
+ * Fields:
+ *   - SOF    : Start-of-frame byte (0xAA)
+ *   - LEN    : 1-byte payload length
+ *   - TYPE   : 1-byte message type (see message_type_t in km_coms.h)
+ *   - PAYLOAD: N bytes of data up to 251 bytes, content depends on message type
+ *   - CRC    : 1-byte CRC8 (XOR-based) over LEN, TYPE, and PAYLOAD
+ * 
+ * Total size of message is 255 bytes
+ *
+ * The `message_type_t` enum defines all possible message types. Conceptually:
+ *   - ESP32 → Orin messages contain telemetry data such as current speed, throttle,
+ *     braking, steering, mission state, machine state, and shutdown status.
+ *   - Orin → ESP32 messages carry commands such as target throttle, braking,
+ *     steering, mission state, machine state, and heartbeat.
+ *
+ * Using the enum ensures type safety and consistency when sending or processing messages.
+ *
+ * The CRC ensures the integrity of the message. Invalid messages are discarded.
+ *
+ * The library uses internal buffers and a FreeRTOS mutex to provide thread-safe
+ * access to shared objects and message queues.
+ *
+ * --------------------------------------------------------------------------
+ * FREE RTOS INTEGRATION
+ * --------------------------------------------------------------------------
+ * Periodic tasks should call km_coms_ReceiveMsg() and KM_COMS_ProccessMsgs() to
+ * read bytes from UART, assemble messages, validate CRC, and process payloads.
+ * KM_COMS_SendMsg() can be used to transmit messages safely from tasks.
+ *
+ * Author: Adrian Navarredonda Arizaleta
+ * Date:   14-02-2026
+ * Version: 1.0
+ *****************************************************************************/
+
+#include "km_coms.h"
+
+/******************************* INCLUDES INTERNOS ****************************/
+// Headers internos opcionales, dependencias privadas
+#include "driver/uart.h"
+#include "freertos/queue.h"
+#include <string.h>
+#include "kart_msgs.pb.h"
+#include <pb_decode.h>
+
+/******************************* MACROS PRIVADAS ********************************/
+// Constantes internas, flags de debug
+
+#define KM_COMS_WAIT_SEM_AVAILABLE 5
+
+/******************************* VARIABLES PRIVADAS ***************************/
+// Variables globales internas (static)
+static uint8_t rx_buffer[KM_COMS_MSG_MAX_LEN - 1]; //[0-255]
+static size_t rx_buffer_len = 0;
+static SemaphoreHandle_t km_coms_mutex;
+static uart_port_t km_coms_uart = UART_NUM_0;
+
+/******************************* DECLARACION FUNCIONES PRIVADAS ***************/
+static void KM_COMS_ProccessPayload(km_coms_msg msg);
+static uint8_t KM_COMS_crc8(uint8_t len, uint8_t type, const uint8_t *data);
+
+/******************************* FUNCIONES PÚBLICAS ***************************/
+
+esp_err_t KM_COMS_Init(uart_port_t uart_port) {
+    km_coms_uart = uart_port;
+
+    km_coms_mutex = xSemaphoreCreateMutex();
+    if(km_coms_mutex == NULL)
+        return ESP_ERR_NO_MEM;
+
+    uart_config_t uart0_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
+    };
+    uart_driver_delete(UART_NUM_0);
+    esp_err_t ret = uart_param_config(UART_NUM_0, &uart0_config);
+    if (ret != ESP_OK) return ret;
+    ret = uart_driver_install(UART_NUM_0, 1024, 0, 0, NULL, 0);
+    if (ret != ESP_OK) return ret;
+
+    /* UART2 removed — GPIO17/16 reserved for hall sensors on PCB */
+
+    /* Pin assignment for UART0 (USB to Orin) */
+    uart_set_pin(km_coms_uart, PIN_USB_UART_TX, PIN_USB_UART_RX,
+                 UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+    return ESP_OK;
+}
+
+int KM_COMS_SendMsg(message_type_t type, uint8_t *payload, uint8_t len) {
+    km_coms_msg msg;
+    uint8_t frame[KM_COMS_MSG_MAX_LEN - 1];
+    size_t total_sent = 0;
+    int sent, attempts = 0;
+
+    if(len > KM_COMS_MSG_MAX_LEN)
+        return -1;
+
+    msg.len = (uint8_t)len;
+    msg.type = (uint8_t)type;
+
+    memcpy(msg.payload, payload, len);
+    msg.crc = KM_COMS_crc8(msg.len, msg.type, msg.payload); // LEN + TYPE + PAYLOAD
+
+    // Armar frame
+    frame[0] = (uint8_t)KM_COMS_SOM;
+    frame[1] = (uint8_t)msg.len;
+    frame[2] = (uint8_t)msg.type;
+    memcpy(&frame[3], msg.payload, msg.len);
+    frame[3 + msg.len] = (uint8_t)msg.crc;
+
+    // Enviar mensaje, se intenta 5 veces
+    while(total_sent < len+4 && attempts < 5) {
+        sent = uart_write_bytes(km_coms_uart, frame + total_sent, (len + 4) - total_sent);
+        total_sent += sent;
+
+        if(sent < (len - total_sent)) {
+            // buffer lleno, espera a que se vacíe
+            attempts++;
+            vTaskDelay(5 / portTICK_PERIOD_MS);
+        }
+    }
+
+    // NO se ha podido enviar el mensaje correctamente
+    if(attempts >= 5 || total_sent < 4 + len){
+        ESP_LOGE("KM_coms", "El msg no se ha enviado, bytes enviados: %d, bytes que habia que enviar: %d", total_sent, 4+len);
+        return 0;
+    }
+
+    // Se ha enviado el mensaje correctamente
+    return 1;
+}
+
+
+void km_coms_ReceiveMsg(void) {
+    uint8_t uart_chunk[KM_COMS_RX_CHUNK];
+    size_t len_read = 0;
+    uint8_t bytes2read = 0;
+
+    // 1. Verificar cuantos bytes hay en el buffer UART
+    size_t uart_len = 0;
+    uart_get_buffered_data_len(km_coms_uart, &uart_len);
+    if(uart_len == 0)
+        return;
+
+    // 2. Leer hasta KM_COMS_RX_CHUNK bytes de la UART
+    if(uart_len > KM_COMS_RX_CHUNK)
+        bytes2read = KM_COMS_RX_CHUNK;
+    else
+        bytes2read = uart_len;
+
+    len_read = uart_read_bytes(km_coms_uart, uart_chunk, bytes2read, 0);
+    if(len_read == 0)
+        return;
+
+    if(xSemaphoreTake(km_coms_mutex, pdMS_TO_TICKS(KM_COMS_WAIT_SEM_AVAILABLE)) == pdTRUE) {
+        // 3. Copiar bytes al buffer interno
+        if(rx_buffer_len + len_read > sizeof(rx_buffer)) {
+            // Overflow, reiniciar buffer
+            rx_buffer_len = 0;
+        }
+        memcpy(rx_buffer + rx_buffer_len, uart_chunk, len_read);
+        rx_buffer_len += len_read;
+        xSemaphoreGive(km_coms_mutex);
+    }
+}
+
+void KM_COMS_ProccessMsgs(void) {
+    size_t processed = 0;
+
+    if(xSemaphoreTake(km_coms_mutex, pdMS_TO_TICKS(KM_COMS_WAIT_SEM_AVAILABLE)) != pdTRUE)
+        return;
+
+    while(rx_buffer_len - processed >= 4) { // Mínimo: SOM + LEN + TYPE + CRC
+        if(rx_buffer[processed] != KM_COMS_SOM) {
+            processed++;
+            continue;
+        }
+
+        uint8_t payload_len = rx_buffer[processed + 1];
+        size_t total_len = 4 + payload_len; // SOM + LEN + TYPE + PAYLOAD + CRC
+
+        if(rx_buffer_len - processed < total_len)
+            break; // Mensaje incompleto, esperar más bytes
+
+        // Construir mensaje
+        km_coms_msg msg;
+        msg.len = payload_len;
+        msg.type = rx_buffer[processed + 2];
+        memcpy(msg.payload, rx_buffer + processed + 3, payload_len);
+        msg.crc = rx_buffer[processed + 3 + payload_len];
+
+        // Verificar CRC
+        uint8_t crc_calc = KM_COMS_crc8(msg.len, msg.type, msg.payload);
+        if(crc_calc == msg.crc) {
+            KM_COMS_ProccessPayload(msg);
+        }
+
+        processed += total_len;
+    }
+
+    // Compactar buffer: mover bytes no procesados al inicio
+    if(processed > 0 && processed < rx_buffer_len) {
+        memmove(rx_buffer, rx_buffer + processed, rx_buffer_len - processed);
+        rx_buffer_len -= processed;
+    } else if(processed >= rx_buffer_len) {
+        rx_buffer_len = 0;
+    }
+
+    xSemaphoreGive(km_coms_mutex);
+}
+
+/******************************* FUNCIONES PRIVADAS ***************************/
+
+/**
+ * @brief Processes the payload of the incoming message and updates the corresponding application objects.
+ *
+ * This function interprets the payload of a received message (`km_coms_msg`) based on its `type`.
+ * Depending on the message type, it extracts the relevant data from the payload, converts it to
+ * a 64-bit integer (`int64_t`), and updates the appropriate shared object using
+ * `KM_OBJ_SetObjectValue()`.
+ *
+ * Supported message types include:
+ * - ORIN_TARG_THROTTLE: 1-byte payload representing the target throttle.
+ * - ORIN_TARG_BRAKING: 1-byte payload representing the target braking.
+ * - ORIN_TARG_STEERING: 2-byte payload, int16 big-endian representing radians × 1000
+ * - ORIN_MISION: 1-byte payload representing the current mission state.
+ * - ORIN_MACHINE_STATE: 1-byte payload representing the machine's current state.
+ * - ORIN_HEARTBEAT: message indicating heartbeat; currently not processed.
+ * - ORIN_SHUTDOWN: 1-byte payload indicating shutdown command.
+ * - ORIN_COMPLETE: 7-byte payload updating all above objects in a single message.
+ *
+ * Invalid payloads (wrong length or unknown direction for steering) are ignored.
+ *
+ * @param msg The incoming message to process.
+ */
+static void KM_COMS_ProccessPayload(km_coms_msg msg) {
+    ESP_LOGI("KM_coms", "RX msg type=0x%02X len=%d crc=0x%02X", msg.type, msg.len, msg.crc);
+
+    switch (msg.type)
+    {
+    case ORIN_TARG_THROTTLE: {
+        kart_TargThrottle pb = kart_TargThrottle_init_zero;
+        pb_istream_t stream = pb_istream_from_buffer(msg.payload, msg.len);
+        if (pb_decode(&stream, kart_TargThrottle_fields, &pb)) {
+            KM_OBJ_SetObjectValue(TARGET_THROTTLE, pb.effort);
+        }
+        break;
+    }
+    case ORIN_TARG_BRAKING: {
+        kart_TargBraking pb = kart_TargBraking_init_zero;
+        pb_istream_t stream = pb_istream_from_buffer(msg.payload, msg.len);
+        if (pb_decode(&stream, kart_TargBraking_fields, &pb)) {
+            KM_OBJ_SetObjectValue(TARGET_BRAKING, pb.effort);
+        }
+        break;
+    }
+    case ORIN_TARG_STEERING: {
+        kart_TargSteering pb = kart_TargSteering_init_zero;
+        pb_istream_t stream = pb_istream_from_buffer(msg.payload, msg.len);
+        if (pb_decode(&stream, kart_TargSteering_fields, &pb)) {
+            KM_OBJ_SetObjectValue(TARGET_STEERING, pb.angle_rad);
+        }
+        break;
+    }
+    case ORIN_MISION: {
+        // Single uint8 payload — mission enum
+        if (msg.len >= 1) {
+            KM_OBJ_SetObjectValue(MISION_ORIN, (float)msg.payload[0]);
+        }
+        break;
+    }
+    case ORIN_MACHINE_STATE: {
+        if (msg.len >= 1) {
+            KM_OBJ_SetObjectValue(MACHINE_STATE_ORIN, (float)msg.payload[0]);
+        }
+        break;
+    }
+    case ORIN_HEARTBEAT:
+        // Heartbeat received — no action needed
+        break;
+
+    case ORIN_SHUTDOWN: {
+        if (msg.len >= 1) {
+            KM_OBJ_SetObjectValue(SHUTDOWN_ORIN, msg.payload[0] ? 1.0f : 0.0f);
+        }
+        break;
+    }
+    case ORIN_COMPLETE: {
+        kart_OrinComplete pb = kart_OrinComplete_init_zero;
+        pb_istream_t stream = pb_istream_from_buffer(msg.payload, msg.len);
+        if (pb_decode(&stream, kart_OrinComplete_fields, &pb)) {
+            KM_OBJ_SetObjectValue(TARGET_THROTTLE, pb.throttle);
+            KM_OBJ_SetObjectValue(TARGET_BRAKING, pb.braking);
+            KM_OBJ_SetObjectValue(TARGET_STEERING, pb.steering_rad);
+            KM_OBJ_SetObjectValue(MISION_ORIN, (float)pb.mission);
+            KM_OBJ_SetObjectValue(MACHINE_STATE_ORIN, (float)pb.machine_state);
+            KM_OBJ_SetObjectValue(SHUTDOWN_ORIN, pb.shutdown ? 1.0f : 0.0f);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+/**
+ * @brief Calculates an 8-bit CRC checksum for a message.
+ *
+ * This function computes a CRC-8 checksum using the polynomial 0x07. The calculation
+ * includes the message length (`len`), message type (`type`), and the actual payload data.
+ * The CRC is computed sequentially:
+ * 1. XOR with the message length and process 8 bits.
+ * 2. XOR with the message type and process 8 bits.
+ * 3. XOR each byte of the payload data and process 8 bits per byte.
+ *
+ * This checksum is used for detecting errors in communication messages.
+ *
+ * @param len  Length of the payload data in bytes.
+ * @param type Message type identifier.
+ * @param data Pointer to the payload data array.
+ * @return The computed 8-bit CRC value.
+ */
+static uint8_t KM_COMS_crc8(uint8_t len, uint8_t type, const uint8_t *data) {
+    uint8_t crc = 0x00;
+
+    crc ^= len;
+    for (int j = 0; j < 8; j++) {
+        crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
+    }
+
+    crc ^= type;
+    for (int j = 0; j < 8; j++) {
+        crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
+    }
+
+    for (uint8_t i = 0; i < len; i++) {
+        crc ^= data[i];
+        for (int j = 0; j < 8; j++) {
+            crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
+        }
+    }
+
+    return crc;
+}
+
+/******************************* FIN DE ARCHIVO ********************************/
