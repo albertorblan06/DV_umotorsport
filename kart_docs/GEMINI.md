@@ -1,2 +1,1 @@
-## Project Specifics
-- This project uses `uv` for dependency management. Always use `uv sync` and `uv run`.
+See `/.agents/README.md` for all project knowledge and conventions.
