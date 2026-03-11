@@ -2,7 +2,7 @@
 
 ## Overview
 
-The DV_umotorsport project develops a fully autonomous racing kart for UM-Driverless. The system detects track boundaries (cones), plans optimal trajectories, and actuates in real-time. The architecture splits high-level autonomous decision-making from low-level hardware actuation for modularity, safety, and performance.
+The DV_umotorsport project develops a fully autonomous racing kart for U Motorsport (Universidad Rey Juan Carlos, Madrid). The system detects track boundaries (cones), plans optimal trajectories, and actuates in real-time. The architecture splits high-level autonomous decision-making from low-level hardware actuation for modularity, safety, and performance.
 
 ## System Architecture
 

@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-Autonomous racing kart developed by UM-Driverless. Three subsystems in one monorepo:
+Autonomous racing kart developed by U Motorsport (Universidad Rey Juan Carlos, Madrid). Three subsystems in one monorepo:
 
 | Directory | Hardware | Stack | Role |
 |-----------|----------|-------|------|

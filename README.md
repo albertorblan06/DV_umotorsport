@@ -1,6 +1,6 @@
 # DV_umotorsport
 
-Autonomous racing kart developed by **UM-Driverless** (University of Malaga). The system detects track boundaries using computer vision, plans trajectories, and controls the kart in real time -- no human driver required.
+Autonomous racing kart developed by **U Motorsport** (Universidad Rey Juan Carlos, Madrid). The system detects track boundaries using computer vision, plans trajectories, and controls the kart in real time -- no human driver required.
 
 ## Architecture
 
