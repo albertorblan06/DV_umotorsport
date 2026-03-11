@@ -133,4 +133,4 @@ Key docs:
 
 ## License
 
-Private repository. All rights reserved.
+Apache License 2.0 -- inherited from the original [UM-Driverless](https://github.com/UM-Driverless) repositories (`kart_brain`, `kart_medulla`, `kart_docs`). See [LICENSE](LICENSE) for the full text.
