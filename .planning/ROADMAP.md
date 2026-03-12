@@ -1,7 +1,11 @@
 # Roadmap: DV_umotorsport
 
 ## Phase 1: Subsystem Stabilization & Integration Testing
-**Goal:** Ensure perception, actuation, and communication systems are robust and reliable independently and in simulation before full autonomy.
+**Goal:** Ensure perception, actuation, and communication systems are robust and reliable independently and in simulation before full autonomy. The immediate focus is a comprehensive and methodical reorganization of all project documentation into clean markdown format.
+
+**Plans:** 2 plans
+- [ ] 01-01-PLAN.md — Foundation & Software Documentation
+- [ ] 01-02-PLAN.md — Hardware Documentation
 
 **Requirements:**
 - AUTO-02: Planner generates feasible racing lines based on localized cones.
