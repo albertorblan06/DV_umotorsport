@@ -5,7 +5,7 @@
 This section catalogs all tools and equipment used for kart assembly, maintenance, and debugging.
 
 !!! info "Tool Management"
-    Tools are tracked in the [`tools.yaml`](tools.yaml) file with status, location, and calibration information.
+  Tools are tracked in the [`tools.yaml`](tools.yaml) file with status, location, and calibration information.
 
 ## Quick Reference
 
@@ -27,7 +27,7 @@ This section catalogs all tools and equipment used for kart assembly, maintenanc
 
 ## Tool Categories
 
-### 🔧 Hand Tools
+### Hand Tools
 Basic mechanical tools for assembly and maintenance.
 
 | Tool | Location | Status | Notes |
@@ -36,7 +36,7 @@ Basic mechanical tools for assembly and maintenance.
 | Metric Hex Key Set | Tool Cabinet A | Available | 1.5-10mm range |
 | Precision Screwdriver Set | Tool Cabinet A | Available | For electronics |
 
-### ⚡ Electronics Tools
+### Electronics Tools
 Specialized tools for electrical work and debugging.
 
 | Tool | Location | Status | Notes |
@@ -46,7 +46,7 @@ Specialized tools for electrical work and debugging.
 | Wire Stripper/Crimper | Electronics Bench | Available | 10-24 AWG |
 | USB-CAN Adapter | Electronics Bench | Available | For CAN bus diagnostics |
 
-### 🔨 Power Tools
+### Power Tools
 Power tools for drilling, cutting, and grinding.
 
 | Tool | Location | Status | Safety Requirements |
@@ -55,12 +55,12 @@ Power tools for drilling, cutting, and grinding.
 | Angle Grinder (115mm) | Tool Cabinet B | Available | **Training required, PPE** |
 
 !!! warning "Power Tool Safety"
-    Power tools require proper training before first use. Always wear appropriate PPE:
-    - Safety glasses (mandatory)
-    - Gloves
-    - Hearing protection (for angle grinder)
+  Power tools require proper training before first use. Always wear appropriate PPE:
+  - Safety glasses (mandatory)
+  - Gloves
+  - Hearing protection (for angle grinder)
 
-### 📏 Measuring Tools
+### Measuring Tools
 Precision measurement equipment.
 
 | Tool | Location | Accuracy | Calibration Status |
@@ -68,7 +68,7 @@ Precision measurement equipment.
 | Digital Caliper | Tool Cabinet A | ±0.02mm | Needs yearly calibration |
 | Tape Measure (5m) | Tool Cabinet A | N/A | No calibration needed |
 
-### 🔬 Specialized Equipment
+### Specialized Equipment
 Advanced diagnostic and charging equipment.
 
 | Equipment | Location | Purpose |
@@ -87,7 +87,7 @@ Tools requiring periodic calibration:
 | Digital Caliper | Yearly | TBD | TBD |
 
 !!! note "Calibration Tracking"
-    Update calibration dates in [`tools.yaml`](tools.yaml) after each calibration service.
+  Update calibration dates in [`tools.yaml`](tools.yaml) after each calibration service.
 
 ## Maintenance Schedule
 
@@ -109,15 +109,15 @@ Tools requiring periodic calibration:
 ## Safety Guidelines
 
 !!! danger "Safety First"
-    **Always follow these safety rules:**
+  **Always follow these safety rules:**
 
-    - Wear appropriate PPE (safety glasses mandatory)
-    - Ensure workspace is well-ventilated when soldering
-    - Keep power tools unplugged when changing accessories
-    - Never bypass safety guards on power tools
-    - Store tools properly after use
-    - Report damaged or malfunctioning tools immediately
-    - Complete training before using power tools
+  - Wear appropriate PPE (safety glasses mandatory)
+  - Ensure workspace is well-ventilated when soldering
+  - Keep power tools unplugged when changing accessories
+  - Never bypass safety guards on power tools
+  - Store tools properly after use
+  - Report damaged or malfunctioning tools immediately
+  - Complete training before using power tools
 
 ## Tool Locations
 

@@ -5,7 +5,7 @@
 This page provides a comprehensive list of all components required to build the driverless kart. Component data is now stored in YAML files within each assembly folder, following the project structure.
 
 !!! info "New BOM Management System"
-    Components are now managed via separate YAML files in each assembly folder. The folder structure represents the BOM tree itself, eliminating synchronization issues.
+  Components are now managed via separate YAML files in each assembly folder. The folder structure represents the BOM tree itself, eliminating synchronization issues.
 
 ## How to Add Components to BOM
 
@@ -15,12 +15,12 @@ Adding a new component is simple:
 2. **Edit the bom.yaml file** - Open the `bom.yaml` file in that folder
 3. **Add your component** - Copy an existing component entry and modify it with your new component's details
 4. **Include key information**:
-   - `id`: unique identifier (e.g., "motor_controller_v2")
-   - `part_number`: manufacturer part number
-   - `description`: what it is
-   - `quantity`: how many needed
-   - `unit_cost`: price per unit
-   - `suppliers`: where to buy it (name, url)
+  - `id`: unique identifier (e.g., "motor_controller_v2")
+  - `part_number`: manufacturer part number
+  - `description`: what it is
+  - `quantity`: how many needed
+  - `unit_cost`: price per unit
+  - `suppliers`: where to buy it (name, url)
 
 That's it! The component will automatically appear in BOM reports.
 
@@ -31,21 +31,21 @@ The BOM is organized by assembly with YAML files containing detailed component s
 ```
 docs/assembly/
 ├── powertrain/
-│   ├── bom.yaml              # Motor, throttle pedal
-│   ├── transmission/bom.yaml # Chain, sprockets
-│   └── fasteners/bom.yaml    # All powertrain fasteners
+│  ├── bom.yaml       # Motor, throttle pedal
+│  ├── transmission/bom.yaml # Chain, sprockets
+│  └── fasteners/bom.yaml  # All powertrain fasteners
 ├── steering/
-│   ├── bom.yaml              # H-bridge, motor, sensor, coupling
-│   └── fasteners/bom.yaml    # All steering fasteners
+│  ├── bom.yaml       # H-bridge, motor, sensor, coupling
+│  └── fasteners/bom.yaml  # All steering fasteners
 ├── electronics/
-│   ├── bom.yaml              # Orin, ESP32, DAC, level shifter
-│   └── power/bom.yaml        # Battery cells, BMS, auxiliary battery
-└── sensors/bom.yaml          # ZED2 camera, YOLOv5 models
+│  ├── bom.yaml       # Orin, ESP32, DAC, level shifter
+│  └── power/bom.yaml    # Battery cells, BMS, auxiliary battery
+└── sensors/bom.yaml     # ZED2 camera, YOLOv5 models
 ```
 
 ## Assembly Overview
 
-### 🔧 Powertrain Assembly
+### Powertrain Assembly
 **Components**: Motor, transmission system, throttle control
 - **Main Components**: [Powertrain BOM](../assembly/powertrain/bom.yaml)
 - **Transmission**: [Transmission BOM](../assembly/powertrain/transmission/bom.yaml)
@@ -57,7 +57,7 @@ docs/assembly/
 - IRIS 219 chain and sprocket system (€40.00)
 - Hall effect throttle pedal (€2.46)
 
-### 🎮 Steering Assembly
+### Steering Assembly
 **Components**: Motor, sensor, H-bridge, coupling
 - **Main Components**: [Steering BOM](../assembly/steering/bom.yaml)
 - **Fasteners**: [Steering Fasteners BOM](../assembly/steering/fasteners/bom.yaml)
@@ -68,7 +68,7 @@ docs/assembly/
 - AS5600 magnetic angle sensor (€2.00)
 - 24V DC steering motor (€80.00)
 
-### 💻 Electronics Assembly
+### Electronics Assembly
 **Components**: Computing, control, communication
 - **Main Components**: [Electronics BOM](../assembly/electronics/bom.yaml)
 - **Documentation**: [Electronics Assembly](../assembly/electronics/microcontroller.md)
@@ -78,7 +78,7 @@ docs/assembly/
 - ESP32 WROOM-32 microcontroller (€3.50)
 - Custom Orin adapter board (€25.00)
 
-### ⚡ Power Assembly
+### Power Assembly
 **Components**: Main battery pack, BMS, auxiliary power
 - **Main Components**: [Power BOM](../assembly/electronics/power/bom.yaml)
 - **Documentation**: [Power Assembly](../assembly/electronics/power/battery.md)
@@ -88,7 +88,7 @@ docs/assembly/
 - Jiabaida Smart BMS 100A (€85.00)
 - 12V auxiliary battery (€60.00)
 
-### 📷 Sensors Assembly
+### Sensors Assembly
 **Components**: Vision system, AI models
 - **Main Components**: [Sensors BOM](../assembly/sensors/bom.yaml)
 - **Documentation**: [Sensors Assembly](../assembly/sensors/camera.md)
@@ -109,18 +109,18 @@ docs/assembly/
 | **Total** | **€2690** | *Excludes chassis, wiring, mechanical hardware* |
 
 !!! warning "Cost Estimates"
-    Prices are approximate and subject to change. Always verify current pricing from suppliers.
+  Prices are approximate and subject to change. Always verify current pricing from suppliers.
 
 ## Component Status
 
-### ✅ Active Components
+### Active Components
 Currently used and functional in the kart.
 
-### ⚠️ Needs Replacement
+### Needs Replacement
 Known to be damaged or worn:
 - 219 aluminum rear sprocket (damaged from incompatible chain use)
 
-### 🔧 Custom Components
+### Custom Components
 Require fabrication:
 - Custom 219 front sprocket (laser cut for 10mm shaft)
 - Orin adapter board (EasyEDA design available)
@@ -136,10 +136,10 @@ Require fabrication:
 - **General Components**: AliExpress, Amazon (for non-critical parts)
 
 ### Quality Guidelines
-- ✅ Use official distributors for critical electronic components
-- ✅ Verify specifications before ordering
-- ⚠️ AliExpress/Amazon acceptable for mechanical parts and sensors
-- ❌ Avoid counterfeit components for safety-critical systems
+- Use official distributors for critical electronic components
+- Verify specifications before ordering
+- AliExpress/Amazon acceptable for mechanical parts and sensors
+- Avoid counterfeit components for safety-critical systems
 
 ## Assembly Priority
 
@@ -163,21 +163,21 @@ Require fabrication:
 assembly: "assembly_name"
 description: "Assembly description"
 components:
-  - id: "unique_component_id"
-    part_number: "MANUFACTURER-PART-NUMBER"
-    description: "Component description"
-    quantity: 1
-    unit_cost: 0.00
-    currency: "EUR"
-    status: "active"
-    criticality: "essential"
-    suppliers:
-      - name: "Supplier Name"
-        url: "https://supplier.com/product"
-        verified: true
-    specifications:
-      key: "value"
-    notes: "Additional information"
+ - id: "unique_component_id"
+  part_number: "MANUFACTURER-PART-NUMBER"
+  description: "Component description"
+  quantity: 1
+  unit_cost: 0.00
+  currency: "EUR"
+  status: "active"
+  criticality: "essential"
+  suppliers:
+   - name: "Supplier Name"
+    url: "https://supplier.com/product"
+    verified: true
+  specifications:
+   key: "value"
+  notes: "Additional information"
 ```
 
 ### Future Automation

@@ -7,8 +7,10 @@ markdown_extensions:
   - pymdownx.superfences
 nav:
   - Home: index.md
-  - BOM: bom/index.md
-  - Tools: tools/index.md
+  - Resources:
+      - BOM: resources/bom.md
+      - Tools: resources/tools.md
+      - FAQ: resources/faq.md
   - Assembly:
       - Overview: assembly/index.md
       - Powertrain:
@@ -39,7 +41,6 @@ nav:
       - Iteration 1: iterations/1.md
       - Iteration 2: iterations/2.md
       - Iteration 3: iterations/3.md
-  - FAQ: faq.md
   - Contact: contact.md
 repo_url: https://github.com/um-driverless/kart_docs
 edit_uri: edit/main/docs/
