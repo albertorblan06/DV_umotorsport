@@ -23,17 +23,17 @@
 4. Dashboard connects and streams valid telemetry.
 
 ## Phase 2: Full Autonomous Navigation
-**Goal:** Achieve end-to-end autonomous navigation around physical cone tracks.
+**Goal:** Create a comprehensive, from-scratch documentation suite for the Full Autonomous Navigation architecture. Per user decisions, this phase structurally addresses the requirements by establishing the complete architectural blueprints and system designs for the autonomous software and hardware.
 
 **Plans:** 2 plans
 - [ ] 02-01-PLAN.md — Foundation & Hardware Docs
 - [ ] 02-02-PLAN.md — Software Docs & LLM Aggregation
 
 **Requirements:**
-- AUTO-01: Kart can autonomously navigate a track defined by traffic cones.
-- AUTO-03: System detects when the track is completed.
+- AUTO-01: Kart can autonomously navigate a track defined by traffic cones. (Structurally addressed via architectural documentation)
+- AUTO-03: System detects when the track is completed. (Structurally addressed via integration documentation)
 
 **Success Criteria:**
-1. Kart completes a lap of an autocross track without hitting cones.
-2. The planner smoothly handles sharp hairpins without losing the track.
-3. The system gracefully stops upon detecting lap completion or track loss.
+1. A new `docs/` folder exists with hardware, assembly, software, and integration subfolders.
+2. `scripts/generate_llms_txt.py` successfully aggregates all markdown files into `llms.txt`.
+3. The documentation provides a complete architectural blueprint for AUTO-01 and AUTO-03 without using emojis.
