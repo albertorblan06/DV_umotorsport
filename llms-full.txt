@@ -1,0 +1,181 @@
+# Full Documentation
+
+## File: assembly/mounting_guide.md
+
+# Assembly Documentation: Mounting Guide
+
+## Overview
+This document provides the standard operating procedures and mechanical constraints for assembling and mounting the autonomous navigation hardware suite onto the racing kart chassis. Adhering to these guidelines ensures system reliability, safety, and sensor accuracy.
+
+## Mechanical Constraints
+
+### Vibration Isolation
+The racing kart chassis experiences significant high-frequency vibrations during operation.
+- **Compute Unit**: Must be mounted using wire rope isolators or high-density rubber dampers to prevent structural damage to PCBs and ensure reliable USB connections.
+- **ZED Camera**: Requires rigid mounting to avoid dynamic calibration shifts, but with a layer of stiff polyurethane to filter high-frequency resonance that could distort the image sensor readout.
+
+### Thermal Management
+- The main compute unit and motor controllers must be mounted in areas with adequate passive airflow. 
+- Avoid placing heat-sensitive electronics directly adjacent to the combustion engine or exhaust manifold.
+- All enclosed electronic boxes must feature IP65-rated breathable vents to prevent condensation while protecting against dust and moisture ingress.
+
+## Mounting Instructions
+
+### 1. ZED Camera Mounting
+1. Locate the forward-most rigid cross-member of the front chassis.
+2. Secure the custom CNC-machined aluminum bracket to the chassis using M6 aircraft-grade bolts. Apply medium-strength threadlocker to all bolts.
+3. Attach the ZED camera to the bracket using the standard 1/4-20 tripod thread.
+4. Verify the camera is perfectly level with the ground plane and precisely centered along the longitudinal axis of the kart.
+
+### 2. Main Compute Unit
+1. Position the compute unit enclosure behind the driver's seat, ensuring clearance from the engine bay.
+2. Fasten the base plate to the chassis using four vibration isolation mounts.
+3. Route all power and data cables through IP65 cable glands on the enclosure, ensuring drip loops are present to prevent water ingress.
+
+### 3. Steering Actuator Assembly
+1. Remove the stock steering wheel.
+2. Slide the customized splined collar over the steering shaft.
+3. Mount the stepper motor to the chassis using the heavy-duty steel mounting bracket.
+4. Connect the motor shaft to the splined collar using the reinforced timing belt. Tension the belt to the specified limit to prevent skipping during rapid steering maneuvers.
+
+### 4. ESP32 and Low-Level Electronics
+1. Mount the ESP32 carrier board inside a secondary waterproof enclosure located near the actuator cluster to minimize cable run lengths.
+2. Ensure all connections to the ESP32 (sensors, CAN bus, power) use locking connectors (e.g., JST-SM or Molex) to prevent disconnection under vibration.
+3. Ground the enclosure and the ESP32 board to a common chassis ground point to minimize electromagnetic interference (EMI) from the ignition system.
+
+## Final Verification
+After all components are mounted:
+- Perform a physical "shake test" on all brackets and enclosures.
+- Verify that no cables are routed near sharp edges or moving parts (e.g., steering tie rods, pedals).
+- Ensure all fasteners are marked with a torque stripe for visual inspection before each run.
+
+
+========================================
+
+## File: hardware/sensors_and_actuators.md
+
+# Hardware Documentation: Sensors and Actuators
+
+## Overview
+This document details the primary hardware components utilized for the full autonomous navigation system of the racing kart. It covers the sensor suite and the actuation mechanisms, ensuring robust real-time data acquisition and precise control.
+
+## Sensors
+
+### ZED Camera
+The ZED stereo camera is the primary vision sensor for the autonomous pipeline. It provides high-resolution, high-framerate depth mapping and visual odometry.
+- **Mounting Position**: Front chassis, elevated to provide an unobstructed field of view.
+- **Interface**: USB 3.0 to the main compute unit.
+- **Power**: Sourced directly from the primary sensor power distribution board to ensure stable voltage.
+- **Data Flow**: Streams RGB and depth channels to the perception node for object detection, lane tracking, and localization.
+
+### Additional Sensors
+- **IMU (Inertial Measurement Unit)**: Used for high-frequency orientation and acceleration tracking. It supplements the visual odometry provided by the ZED camera.
+- **Wheel Encoders**: Provide precise wheel speed and distance measurements, crucial for dead reckoning and state estimation.
+
+## Actuators
+
+### Steering Actuation
+The steering mechanism is controlled via a high-torque stepper motor directly coupled to the steering column.
+- **Controller**: Driven by a dedicated motor controller which receives CAN or PWM signals from the low-level processing unit.
+- **Feedback**: Absolute rotary encoders on the steering column provide closed-loop feedback to ensure exact angular positioning.
+
+### Braking Actuation
+Braking is achieved through a linear linear actuator that directly manipulates the hydraulic brake master cylinder.
+- **Failsafe**: A mechanical return spring and normally-closed solenoid valve ensure the brakes default to an engaged state in the event of power loss.
+
+### Throttle Actuation
+The throttle is controlled via a servomotor attached to the throttle body.
+- **Redundancy**: Dual potentiometers provide redundant positional feedback, monitored constantly by the safety controller to detect signal discrepancies.
+
+## ESP32 Wiring and Integration
+The ESP32 microcontroller serves as the low-level bridge between the high-level autonomy software and the physical hardware layer.
+- **Communication Protocol**: The ESP32 communicates with the main compute unit via serial/USB and interfaces with the motor controllers using CAN bus.
+- **Pin Configuration**:
+  - `GPIO 16, 17`: CAN TX/RX for motor controllers.
+  - `GPIO 32, 33`: Serial interface for debugging and telemetry.
+  - `GPIO 25, 26`: Analog inputs for redundant throttle feedback.
+- **Isolation**: All logic-level signals from the ESP32 to high-power actuators are passed through optoisolators to prevent voltage spikes from damaging the microcontroller.
+
+
+========================================
+
+## File: integration/lap_completion.md
+
+# Integration and Lap Completion
+
+## Introduction
+The successful execution of an autonomous mission demands precise integration between all subsystems and reliable logic to track mission progress. This document outlines the end-to-end testing procedures and the lap completion algorithms for the autonomous kart.
+
+## End-to-End Integration Testing
+Testing full autonomous capabilities requires a controlled and phased approach.
+
+- **System Startup**: Ensure all sensor drivers, low-level controllers, and ROS 2 nodes are launched correctly without initialization errors.
+- **Static Validation**: Verify that perception nodes accurately classify cones and that the tracking module correctly generates trajectories while the vehicle is stationary.
+- **Dynamic Validation**: Engage the low-level controllers and observe the kart's behavior at low speeds, confirming that pure pursuit commands map correctly to steering and throttle actuation.
+
+## Lap Completion Logic
+To fulfill mission constraints, the system must accurately detect when the kart has completed a full lap. This involves combining multiple signals to ensure robustness against sensor dropouts.
+
+### Start and Finish Line Detection
+The primary mechanism relies on identifying the specific visual markers of the start and finish lines.
+- **Orange Cone Gates**: The start and finish zones are delineated by large orange cones. The perception pipeline identifies these features to register the crossing of the gate.
+- **Temporal Debouncing**: To prevent multiple triggers from a single pass, a strict temporal debounce filter is applied to the gate detection signal.
+
+### SLAM Loop Closure
+Simultaneous Localization and Mapping (SLAM) is used to corroborate the physical gate detection.
+- **Map Correlation**: As the vehicle traverses the track, the SLAM system incrementally builds a map of the environment.
+- **Loop Closure Detection**: When the kart returns to an area previously mapped (the start zone), the SLAM system performs a loop closure. This topological match acts as a secondary confirmation that a full lap has been completed.
+
+### Distance Heuristics
+A fail-safe mechanism using distance metrics guarantees lap tracking even if visual markers are missed.
+- **Odometry Tracking**: The navigation stack accumulates the total distance traveled based on wheel odometry and IMU integration.
+- **Minimum Distance Threshold**: A lap is only considered valid if the integrated distance exceeds a predefined threshold configured for the specific track layout.
+
+## Mission State Machine
+The integration of these detection methods is handled by a state machine node.
+- **STATE_START**: Vehicle is stationary at the starting gate.
+- **STATE_RACING**: Vehicle crosses the starting gate and is actively tracking the path.
+- **STATE_FINISHED**: The system confirms a lap completion via gate detection combined with loop closure or distance heuristics, prompting the kart to decelerate safely.
+
+
+========================================
+
+## File: software/autonomous_navigation.md
+
+# Autonomous Navigation Software Architecture
+
+## Overview
+The autonomous navigation software stack for the DV_umotorsport vehicle is built upon ROS 2. It incorporates an advanced perception pipeline, localized planning, and robust control algorithms to maneuver the kart safely and effectively around the track. This document details the core software nodes and algorithmic approaches utilized in the navigation stack.
+
+## Perception Pipeline
+The perception system relies on camera data and LiDAR point clouds to build a comprehensive understanding of the kart's surroundings. The primary objectives are cone detection, color classification, and depth estimation.
+
+- **Sensor Fusion**: LiDAR and camera data are time-synchronized.
+- **Cone Detection**: Deep learning models identify racing cones from image streams.
+- **Color Classification**: Bounding boxes from the camera are projected into the 3D space to classify cone types (e.g., yellow, blue, orange) which dictate the track boundaries.
+
+## Track Limits and Boundary Mapping
+Accurate delineation of the track is critical for safe navigation. The system employs geometric algorithms to map the drivable area.
+
+### Delaunay Triangulation
+Once the positions of the track cones are estimated in the local coordinate frame, Delaunay triangulation is applied to the set of cone coordinates.
+- **Mesh Generation**: A triangular mesh is generated connecting all detected cones.
+- **Edge Filtering**: Edges of the triangles that exceed a maximum distance threshold or cross the kart's longitudinal axis inappropriately are pruned.
+- **Midpoint Extraction**: The algorithm computes the midpoints of the valid edges connecting the left (blue) and right (yellow) boundary cones. These midpoints formulate the target trajectory for the kart.
+
+## Path Tracking and Control
+The control subsystem is responsible for issuing steering and acceleration commands to follow the computed trajectory.
+
+### ROS 2 Pure Pursuit Algorithm
+The kart's path tracking relies on a custom implementation of the Pure Pursuit algorithm deployed as a ROS 2 node.
+- **Lookahead Distance**: A dynamic lookahead distance is calculated based on the kart's current longitudinal velocity.
+- **Curvature Calculation**: The node identifies a target point on the generated trajectory that corresponds to the lookahead distance. It then calculates the necessary steering angle curvature to intersect that target point from the vehicle's current position and heading.
+- **Actuator Commands**: The calculated steering angles and corresponding target velocities are published as control commands to the low-level actuator management system.
+
+## Node Architecture
+- **perception_node**: Subscribes to `/camera/image_raw` and `/lidar/points`. Publishes `/perception/cones`.
+- **mapping_node**: Subscribes to `/perception/cones` and `/odom`. Applies Delaunay triangulation and publishes `/planning/trajectory`.
+- **pure_pursuit_node**: Subscribes to `/planning/trajectory` and `/odom`. Publishes `/control/cmd_vel` and `/control/steering`.
+
+
+========================================
