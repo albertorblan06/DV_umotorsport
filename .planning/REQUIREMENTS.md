@@ -29,5 +29,18 @@
 - Full physical Kart test per PR (dangerous, blocks fast development)
 
 ## Traceability
-<!-- Updated by roadmap generation -->
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| METR-01 | Phase 3 | Pending |
+| METR-02 | Phase 3 | Pending |
+| METR-03 | Phase 6 | Pending |
+| TEST-01 | Phase 4 | Pending |
+| TEST-02 | Phase 5 | Pending |
+| TEST-03 | Phase 5 | Pending |
+| TEST-04 | Phase 6 | Pending |
+| PERF-01 | Phase 4 | Pending |
+| PERF-02 | Phase 5 | Pending |
+| PERF-03 | Phase 5 | Pending |
+| SCRU-01 | Phase 3 | Pending |
 
