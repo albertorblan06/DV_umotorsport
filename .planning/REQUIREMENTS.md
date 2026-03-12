@@ -3,8 +3,8 @@
 ## Current Milestone (v2.0 Full Remake)
 
 ### CI & Metrics
-- [ ] **METR-01**: PR CI pipeline executes automated tests and linters
-- [ ] **METR-02**: Static code analysis (clang-tidy, Ruff) fails CI on violations
+- [x] **METR-01**: PR CI pipeline executes automated tests and linters
+- [x] **METR-02**: Static code analysis (clang-tidy, Ruff) fails CI on violations
 - [ ] **METR-03**: Automated ROS Bag regression tests execute against computer vision pipeline
 
 ### Testing & Hardware Abstraction
@@ -32,8 +32,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| METR-01 | Phase 3 | Pending |
-| METR-02 | Phase 3 | Pending |
+| METR-01 | Phase 3 | Complete |
+| METR-02 | Phase 3 | Complete |
 | METR-03 | Phase 6 | Pending |
 | TEST-01 | Phase 4 | Pending |
 | TEST-02 | Phase 5 | Pending |
