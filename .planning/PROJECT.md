@@ -4,6 +4,18 @@
 
 Autonomous racing kart developed by U Motorsport (Universidad Rey Juan Carlos, Madrid). The system detects track boundaries using computer vision, plans trajectories, and controls the kart in real time without a human driver. It features a two-layer architecture: a Jetson AGX Orin for high-level perception and planning, and an ESP32 for real-time PID control and actuator management.
 
+## Current Milestone: v2.0 Full Remake
+
+**Goal:** Solve issues from the root, enforce strict engineering standards (unit tests, low Big O, clean code), document all iterations, and adopt Scrum for a March 25th target.
+
+**Target features:**
+- Implement unit tests for all codebase components.
+- Refactor existing code for simplicity and optimal algorithmic complexity (low Big O).
+- Adopt Scrum methodology with documented iterations.
+- Resolve underlying architectural issues from the root.
+- Target completion deadline: March 25th.
+
+
 ## Core Value
 
 Reliable, real-time autonomous control of a racing kart utilizing a unified computer vision pipeline and robust low-level actuator management.
@@ -49,4 +61,4 @@ Reliable, real-time autonomous control of a racing kart utilizing a unified comp
 | Protobuf over UART | Ensures structured, serialized messages with low overhead | — Pending |
 
 ---
-*Last updated: 2026-03-12 after initialization*
+*Last updated: 2026-03-12 Milestone v2.0 started*
