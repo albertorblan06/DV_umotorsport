@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Run Ruff
+        run: ruff check .
+
+  ros2-build:
+    name: ROS 2 Build & Clang-Tidy
+    runs-on: ubuntu-latest
+    container:
+      image: ros:humble-ros-base
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          apt-get update && apt-get install -y \
+            python3-colcon-common-extensions \
+            clang-tidy \
+            build-essential
+      - name: Build ROS 2 workspace
+        run: |
+          if [ -d "src" ]; then
+            colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          else
+            echo "No src directory found, skipping build."
+            mkdir -p build
+            echo "[]" > build/compile_commands.json
+          fi
+      - name: Run clang-tidy
+        run: |
+          if [ -d "src" ]; then
+            find src -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" \) | xargs -r clang-tidy -p build/
+          else
+            echo "No src directory found, skipping clang-tidy."
+          fi
+
+  esp32-build:
+    name: ESP32 Firmware Build
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:v5.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ESP32 firmware
+        run: |
+          . $IDF_PATH/export.sh
+          if [ -d "firmware" ] && [ -f "firmware/CMakeLists.txt" ]; then
+            cd firmware
+            idf.py build
+          else
+            echo "No firmware directory found, skipping ESP32 build."
+          fi
