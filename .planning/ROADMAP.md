@@ -40,7 +40,9 @@
 1. Project board reflects the current sprint and backlog items, tracking development progress.
 2. Commits to Pull Requests automatically trigger the CI pipeline.
 3. The CI pipeline fails and blocks merging if clang-tidy or Ruff detect code quality violations.
-**Plans:** TBD
+**Plans:** 2 plans
+- [ ] 03-01-PLAN.md — Initialize the project tracking foundation via a lightweight GitHub Projects board
+- [ ] 03-02-PLAN.md — Establish a rigorous CI pipeline that enforces static analysis rules using Ruff and clang-tidy
 
 ### Phase 4: Hardware Abstraction & Logic Decoupling
 **Goal:** Core algorithms are isolated from hardware and middleware dependencies.
