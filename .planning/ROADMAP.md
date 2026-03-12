@@ -25,6 +25,10 @@
 ## Phase 2: Full Autonomous Navigation
 **Goal:** Achieve end-to-end autonomous navigation around physical cone tracks.
 
+**Plans:** 2 plans
+- [ ] 02-01-PLAN.md — Foundation & Hardware Docs
+- [ ] 02-02-PLAN.md — Software Docs & LLM Aggregation
+
 **Requirements:**
 - AUTO-01: Kart can autonomously navigate a track defined by traffic cones.
 - AUTO-03: System detects when the track is completed.
