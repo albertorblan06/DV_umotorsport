@@ -6,7 +6,7 @@
 ## v1 Requirements
 
 ### Core Autonomy
-- [ ] **AUTO-01**: Kart can autonomously navigate a track defined by traffic cones.
+- [x] **AUTO-01**: Kart can autonomously navigate a track defined by traffic cones.
 - [x] **AUTO-02**: Planner generates feasible racing lines based on localized cones.
 - [ ] **AUTO-03**: System detects when the track is completed.
 
@@ -39,7 +39,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTO-01 | Phase 2 | Pending |
+| AUTO-01 | Phase 2 | Complete |
 | AUTO-02 | Phase 1 | Complete |
 | AUTO-03 | Phase 2 | Pending |
 | PERC-01 | Phase 1 | Pending |
