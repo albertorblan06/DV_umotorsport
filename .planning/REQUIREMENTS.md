@@ -7,7 +7,7 @@
 
 ### Core Autonomy
 - [ ] **AUTO-01**: Kart can autonomously navigate a track defined by traffic cones.
-- [ ] **AUTO-02**: Planner generates feasible racing lines based on localized cones.
+- [x] **AUTO-02**: Planner generates feasible racing lines based on localized cones.
 - [ ] **AUTO-03**: System detects when the track is completed.
 
 ### Perception
@@ -20,7 +20,7 @@
 - [ ] **CTRL-03**: ESP32 heartbeat failure leads to safe state (brakes applied).
 
 ### Telemetry
-- [ ] **TELE-01**: ROS 2 dashboard displays current state, speeds, and camera feeds.
+- [x] **TELE-01**: ROS 2 dashboard displays current state, speeds, and camera feeds.
 
 ## v2 Requirements
 
@@ -40,14 +40,14 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTO-01 | Phase 2 | Pending |
-| AUTO-02 | Phase 1 | Pending |
+| AUTO-02 | Phase 1 | Complete |
 | AUTO-03 | Phase 2 | Pending |
 | PERC-01 | Phase 1 | Pending |
 | PERC-02 | Phase 1 | Pending |
 | CTRL-01 | Phase 1 | Pending |
 | CTRL-02 | Phase 1 | Pending |
 | CTRL-03 | Phase 1 | Pending |
-| TELE-01 | Phase 1 | Pending |
+| TELE-01 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 9 total
