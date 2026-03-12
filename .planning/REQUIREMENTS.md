@@ -19,7 +19,7 @@
 - [ ] **PERF-03**: Google Benchmark validates latency and algorithmic complexity constraints in CI
 
 ### Scrum Methodology
-- [ ] **SCRU-01**: Project backlog and iterations are tracked via lightweight GitHub Projects boards
+- [x] **SCRU-01**: Project backlog and iterations are tracked via lightweight GitHub Projects boards
 
 ## Future / Deferred
 - Decoupling software sprints from hardware integration sprints (Deferred)
@@ -42,5 +42,5 @@
 | PERF-01 | Phase 4 | Pending |
 | PERF-02 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
-| SCRU-01 | Phase 3 | Pending |
+| SCRU-01 | Phase 3 | Complete |
 
