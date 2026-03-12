@@ -1,59 +1,33 @@
-# Requirements: DV_umotorsport
+# DV_umotorsport Requirements
 
-**Defined:** 2026-03-12
-**Core Value:** Reliable, real-time autonomous control of a racing kart utilizing a unified computer vision pipeline and robust low-level actuator management.
+## Current Milestone (v2.0 Full Remake)
 
-## v1 Requirements
+### CI & Metrics
+- [ ] **METR-01**: PR CI pipeline executes automated tests and linters
+- [ ] **METR-02**: Static code analysis (clang-tidy, Ruff) fails CI on violations
+- [ ] **METR-03**: Automated ROS Bag regression tests execute against computer vision pipeline
 
-### Core Autonomy
-- [x] **AUTO-01**: Kart can autonomously navigate a track defined by traffic cones.
-- [x] **AUTO-02**: Planner generates feasible racing lines based on localized cones.
-- [x] **AUTO-03**: System detects when the track is completed.
+### Testing & Hardware Abstraction
+- [ ] **TEST-01**: Hardware Abstraction Layer (HAL) abstracts ESP32 and Orin hardware interfaces
+- [ ] **TEST-02**: ROS 2 Jetson logic is validated via GTest/PyTest test suites
+- [ ] **TEST-03**: ESP32 PID and comms logic is validated via Unity unit tests
+- [ ] **TEST-04**: Hardware-in-the-Loop (HIL) testing infrastructure validates end-to-end behavior
 
-### Perception
-- [ ] **PERC-01**: Detects track boundaries/cones at >= 15Hz using YOLOv11 and ZED.
-- [ ] **PERC-02**: Converts bounding boxes and depth to 3D local coordinates.
+### Refactoring & Performance
+- [ ] **PERF-01**: PID and Trajectory planning logic is decoupled into a pure C/C++ core
+- [ ] **PERF-02**: Algorithmic refactoring reduces computational complexity (Big O) of core algorithms
+- [ ] **PERF-03**: Google Benchmark validates latency and algorithmic complexity constraints in CI
 
-### Control & Actuation
-- [ ] **CTRL-01**: ESP32 outputs PWM to steering with accurate AS5600 feedback.
-- [ ] **CTRL-02**: ESP32 drives Throttle and Brake DACs reliably.
-- [ ] **CTRL-03**: ESP32 heartbeat failure leads to safe state (brakes applied).
+### Scrum Methodology
+- [ ] **SCRU-01**: Project backlog and iterations are tracked via lightweight GitHub Projects boards
 
-### Telemetry
-- [x] **TELE-01**: ROS 2 dashboard displays current state, speeds, and camera feeds.
-
-## v2 Requirements
-
-### Advanced Planning
-- **PLAN-01**: Dynamic obstacle avoidance during racing.
-- **PLAN-02**: Model Predictive Control (MPC) for high-speed trajectory tracking.
+## Future / Deferred
+- Decoupling software sprints from hardware integration sprints (Deferred)
+- Heavy Enterprise Scrum (Jira) (Deferred)
 
 ## Out of Scope
-
-| Feature | Reason |
-|---------|--------|
-| Cellular Teleop | Not required for local track autonomy. |
-| Non-cone tracks | Project is scoped to formula student-style cone tracks. |
+- Full physical Kart test per PR (dangerous, blocks fast development)
 
 ## Traceability
+<!-- Updated by roadmap generation -->
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| AUTO-01 | Phase 2 | Complete |
-| AUTO-02 | Phase 1 | Complete |
-| AUTO-03 | Phase 2 | Complete |
-| PERC-01 | Phase 1 | Pending |
-| PERC-02 | Phase 1 | Pending |
-| CTRL-01 | Phase 1 | Pending |
-| CTRL-02 | Phase 1 | Pending |
-| CTRL-03 | Phase 1 | Pending |
-| TELE-01 | Phase 1 | Complete |
-
-**Coverage:**
-- v1 requirements: 9 total
-- Mapped to phases: 9
-- Unmapped: 0 ✓
-
----
-*Requirements defined: 2026-03-12*
-*Last updated: 2026-03-12 after initial definition*
