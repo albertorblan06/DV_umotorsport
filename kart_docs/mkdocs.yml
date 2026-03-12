@@ -35,7 +35,10 @@ nav:
           - Camera: assembly/sensors/camera.md
       - Emergency Braking: assembly/emergency-braking/index.md
   - Hydraulics: hydraulics/index.md
-  - Software: software/index.md
+  - Software:
+      - Architecture: software/architecture.md
+      - ROS 2 Nodes: software/ros2-nodes.md
+      - ESP32 Firmware: software/esp32-firmware.md
   - Agent Iterations:
       - Overview: iterations/index.md
       - Iteration 1: iterations/1.md
