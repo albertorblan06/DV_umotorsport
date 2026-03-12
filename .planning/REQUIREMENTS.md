@@ -8,7 +8,7 @@
 ### Core Autonomy
 - [x] **AUTO-01**: Kart can autonomously navigate a track defined by traffic cones.
 - [x] **AUTO-02**: Planner generates feasible racing lines based on localized cones.
-- [ ] **AUTO-03**: System detects when the track is completed.
+- [x] **AUTO-03**: System detects when the track is completed.
 
 ### Perception
 - [ ] **PERC-01**: Detects track boundaries/cones at >= 15Hz using YOLOv11 and ZED.
@@ -41,7 +41,7 @@
 |-------------|-------|--------|
 | AUTO-01 | Phase 2 | Complete |
 | AUTO-02 | Phase 1 | Complete |
-| AUTO-03 | Phase 2 | Pending |
+| AUTO-03 | Phase 2 | Complete |
 | PERC-01 | Phase 1 | Pending |
 | PERC-02 | Phase 1 | Pending |
 | CTRL-01 | Phase 1 | Pending |
